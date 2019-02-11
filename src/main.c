@@ -140,9 +140,9 @@ int main(int argc, char **argv) {
           DEBUG_BLOCK("execvp", { xassert(execvp(argv[optind], &argv[optind]) == 0); });
         } else {
           waitpid(pid, NULL, 0);
+          DEBUG_PRINTF("process %d exited.\n", pid);
         }
       });
-
     } else {
       DEBUG_BLOCK("execvp", { xassert(execvp(argv[optind], &argv[optind]) == 0); });
     }
