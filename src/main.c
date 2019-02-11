@@ -9,7 +9,7 @@ void printLogo();
 void printUsage(char const *);
 int mkpath(char *dir, mode_t mode);
 
-static const char *optString = "xt:r:b:c:w:pfh?";
+static const char *optString = "xpfr:t:b:c:w:ph?";
 
 int main(int argc, char **argv) {
   printLogo();
@@ -152,6 +152,9 @@ int main(int argc, char **argv) {
 void printUsage(char const *name) {
   printf("%s: `chroot`, `mount --bind` without privilege\n", name);
   puts("usage:");
+  puts("-x\n\tSetup user namespace.");
+  puts("-p\n\tMount proc filesystem.");
+  puts("-f\n\tFork before exec.");
   puts("-r path\n\tUse *path* as the new guest root file-system, default is `/`.");
   puts("-b path\n\tMake the content of *path* accessible in the guest rootfs.");
   puts("-t path\n\tCreate tmpfs on *path* in guest rootfs.");
