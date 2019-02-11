@@ -9,6 +9,9 @@ void printLogo();
 void printUsage(char const *);
 int mkpath(char *dir, mode_t mode);
 
+pid_t pid = 0;
+void sig_handler(int signo) { return; }
+
 static const char *optString = "xpfr:t:b:c:w:ph?";
 
 int main(int argc, char **argv) {
@@ -19,7 +22,6 @@ int main(int argc, char **argv) {
   char *work     = NULL;
   int mount_proc = 0;
   int do_fork    = 0;
-  pid_t pid      = 0;
   int opt;
   char const *progname = argv[0];
   DEBUG_BLOCK("setup environment", while ((opt = getopt(argc, argv, optString)) != -1) {
@@ -139,6 +141,7 @@ int main(int argc, char **argv) {
           }
           DEBUG_BLOCK("execvp", { xassert(execvp(argv[optind], &argv[optind]) == 0); });
         } else {
+          for (int i = 1; i < SIGRTMAX; i++) signal(i, sig_handler);
           waitpid(pid, NULL, 0);
           DEBUG_PRINTF("process %d exited.\n", pid);
         }
