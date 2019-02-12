@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
     switch (opt) {
     case 'x':
       DEBUG_BLOCK("setup user namespace", {
-        DEBUG_ASSERT(unshare(CLONE_NEWUSER | CLONE_NEWNS | CLONE_NEWPID) == 0);
+        DEBUG_ASSERT(unshare(CLONE_NEWUSER | CLONE_NEWNS) == 0);
         DEBUG_EXEC(deny_to_setgroups());
         DEBUG_EXEC(map_to_root(ceuid, "/proc/self/uid_map"));
         DEBUG_EXEC(map_to_root(cegid, "/proc/self/gid_map"));
@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
       do_fork = 1;
       break;
     case 'b':
-      DEBUG_BLOCK("bind mount", {
+      DEBUG_BLOCK("mount bind", {
         char from[PATH_MAX]       = { 0 };
         char to[PATH_MAX]         = { 0 };
         char redirected[PATH_MAX] = { 0 };
@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
       });
       break;
     case 't':
-      DEBUG_BLOCK("create tmpfs", {
+      DEBUG_BLOCK("mount tmpfs", {
         uassert(strlen(optarg), "tmpdir need to be a non-empty string.");
         uassert(optarg[0] == '/', "tmpdir need to be an absolute path.");
         char path[PATH_MAX]       = { 0 };
@@ -133,6 +133,9 @@ int main(int argc, char **argv) {
       });
     }
     if (do_fork) {
+      if (mount_proc) {
+        DEBUG_BLOCK("setup pid namespace", { DEBUG_ASSERT(unshare(CLONE_NEWPID) == 0); });
+      }
       DEBUG_BLOCK("fork", {
         xassert((pid = fork()) >= 0);
         if (pid == 0) {
