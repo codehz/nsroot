@@ -12,7 +12,7 @@ int mkpath(char *dir, mode_t mode);
 pid_t pid = 0;
 void sig_handler(int signo) { return; }
 
-static const char *optString = "xpfr:t:b:c:w:ph?";
+static const char *optString = "xXpfr:t:b:c:w:ph?";
 
 int main(int argc, char **argv) {
   printLogo();
@@ -27,11 +27,16 @@ int main(int argc, char **argv) {
   DEBUG_BLOCK("setup environment", while ((opt = getopt(argc, argv, optString)) != -1) {
     switch (opt) {
     case 'x':
-      DEBUG_BLOCK("setup user namespace", {
+      DEBUG_BLOCK("setup user & mount namespace", {
         DEBUG_ASSERT(unshare(CLONE_NEWUSER | CLONE_NEWNS) == 0);
         DEBUG_EXEC(deny_to_setgroups());
         DEBUG_EXEC(map_to_root(ceuid, "/proc/self/uid_map"));
         DEBUG_EXEC(map_to_root(cegid, "/proc/self/gid_map"));
+      });
+      break;
+    case 'X':
+      DEBUG_BLOCK("setup mount namespace", {
+        DEBUG_ASSERT(unshare(CLONE_NEWNS) == 0);
       });
       break;
     case 'r':
@@ -158,7 +163,8 @@ int main(int argc, char **argv) {
 void printUsage(char const *name) {
   printf("%s: `chroot`, `mount --bind` without privilege\n", name);
   puts("usage:");
-  puts("-x\n\tSetup user namespace.");
+  puts("-x\n\tSetup user & mount namespace.");
+  puts("-X\n\tSetup mount namespace.");
   puts("-p\n\tMount proc filesystem.");
   puts("-f\n\tFork before exec.");
   puts("-r path\n\tUse *path* as the new guest root file-system, default is `/`.");
