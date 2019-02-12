@@ -161,7 +161,7 @@ int main(int argc, char **argv) {
 }
 
 void printUsage(char const *name) {
-  printf("%s: `chroot`, `mount --bind` without privilege\n", name);
+  printf("%s [-x] [-X] [-p] [-f] [-r root] [-b dir[:target]] [-t target[:options]] [-c target] [-w workdir] /path/to/program [...args]\n", name);
   puts("usage:");
   puts("-x\n\tSetup user & mount namespace.");
   puts("-X\n\tSetup mount namespace.");

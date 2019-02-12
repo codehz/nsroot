@@ -28,7 +28,7 @@ Options:
 ## Usage
 
 ```
-unroot [-x] [-X] [-p] [-f] [-r root] [-b dir[:target]] [-t target[:options]] [-c target] [-w workdir] /path/to/program [...args]
+nsroot [-x] [-X] [-p] [-f] [-r root] [-b dir[:target]] [-t target[:options]] [-c target] [-w workdir] /path/to/program [...args]
 ```
 
 - `-x`<br>Setup user & mount namespace.
