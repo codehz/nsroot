@@ -40,3 +40,4 @@ nsroot [-x] [-X] [-p] [-f] [-r root] [-b dir[:target]] [-t target[:options]] [-c
 - `-t path`<br>Create tmpfs on *path* in guest rootfs.
 - `-c path`<br>Create folder structure in guest rootfs.
 - `-w path`<br>Set the initial working directory to *path*.
+- `-a appname`<br>Set the initial process name.

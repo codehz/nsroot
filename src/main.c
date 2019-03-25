@@ -12,7 +12,7 @@ int mkpath(char *dir, mode_t mode);
 pid_t pid = 0;
 void sig_handler(int signo) { return; }
 
-static const char *optString = "xXpfr:t:b:c:w:ph?";
+static const char *optString = "xXpfr:t:b:c:w:a:ph?";
 
 int main(int argc, char **argv) {
   printLogo();
@@ -20,6 +20,7 @@ int main(int argc, char **argv) {
   int cegid      = getegid();
   char *root     = NULL;
   char *work     = NULL;
+  char *appname  = NULL;
   int mount_proc = 0;
   int do_fork    = 0;
   int opt;
@@ -34,11 +35,7 @@ int main(int argc, char **argv) {
         DEBUG_EXEC(map_to_root(cegid, "/proc/self/gid_map"));
       });
       break;
-    case 'X':
-      DEBUG_BLOCK("setup mount namespace", {
-        DEBUG_ASSERT(unshare(CLONE_NEWNS) == 0);
-      });
-      break;
+    case 'X': DEBUG_BLOCK("setup mount namespace", { DEBUG_ASSERT(unshare(CLONE_NEWNS) == 0); }); break;
     case 'r':
       DEBUG_PRINTF("newroot set: %s\n", optarg);
       root = optarg;
@@ -54,6 +51,10 @@ int main(int argc, char **argv) {
     case 'f':
       DEBUG_PRINTF("fork set\n");
       do_fork = 1;
+      break;
+    case 'a':
+      DEBUG_PRINTF("appname set: %s\n", optarg);
+      appname = strdup(optarg);
       break;
     case 'b':
       DEBUG_BLOCK("mount bind", {
@@ -147,16 +148,27 @@ int main(int argc, char **argv) {
           if (mount_proc) {
             DEBUG_BLOCK("mount proc", { xassert(mount("none", "/proc", "proc", 0, NULL) == 0); });
           }
-          DEBUG_BLOCK("execvp", { xassert(execvp(argv[optind], &argv[optind]) == 0); });
+          goto exec;
         } else {
           for (int i = 1; i < SIGRTMAX; i++) signal(i, sig_handler);
           waitpid(pid, NULL, 0);
           DEBUG_PRINTF("process %d exited.\n", pid);
         }
       });
-    } else {
+    } else
+      goto exec;
+    return 0;
+  exec:
+    if (appname) {
+      int idx = optind + 1;
+      while (argv[idx]) idx++;
+      char *cpargv[idx - optind + 1];
+      cpargv[0] = appname;
+      for (int i = 1; i < idx - optind; i++) cpargv[i] = argv[optind + i];
+      cpargv[idx - optind] = 0;
+      DEBUG_BLOCK("execvp", { xassert(execvp(argv[optind], cpargv) == 0); });
+    } else
       DEBUG_BLOCK("execvp", { xassert(execvp(argv[optind], &argv[optind]) == 0); });
-    }
   });
 }
 
@@ -172,6 +184,7 @@ void printUsage(char const *name) {
   puts("-t path\n\tCreate tmpfs on *path* in guest rootfs.");
   puts("-c path\n\tCreate folder structure in guest rootfs.");
   puts("-w path\n\tSet the initial working directory to *path*.");
+  puts("-a appname\n\tSet the initial process name.");
 }
 
 int mkpath(char *dir, mode_t mode) {
