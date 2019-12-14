@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
         char from[PATH_MAX]       = { 0 };
         char to[PATH_MAX]         = { 0 };
         char redirected[PATH_MAX] = { 0 };
-        if (sscanf(optarg, "%[^:]:%[^:]", &from, &to) != 2) {
+        if (sscanf(optarg, "%[^:]:%[^:]", from, to) != 2) {
           strcpy(from, optarg);
           strcpy(to, optarg);
         }
@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
         char path[PATH_MAX]       = { 0 };
         char redirected[PATH_MAX] = { 0 };
         char options[64]          = { 0 };
-        if (sscanf(optarg, "%[^:]:%s", &path, &options) != 2) {
+        if (sscanf(optarg, "%[^:]:%s", path, options) != 2) {
           strcpy(path, optarg);
           options[0] = 0;
         }
