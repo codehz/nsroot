@@ -14,6 +14,6 @@ void deny_to_setgroups() { write_sth_to_file("/proc/self/setgroups", "deny", -1)
 
 void map_to_root(int id, char const *filename) {
   char buf[0x20] = { 0 };
-  int len        = snprintf(buf, 0x100, "0 %d 1", id);
+  int len        = snprintf(buf, 0x20, "0 %d 1", id);
   write_sth_to_file(filename, buf, len);
 }
